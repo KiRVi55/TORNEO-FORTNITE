@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1er Torneo de Fortnite (cero construcción)</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    
+const firebaseConfig = {
+  apiKey: "AIzaSyBSy-zKW2EVs_cE7in_SxNBaUqGdapLZ6g",
+  authDomain: "torneo-fortnite-275be.firebaseapp.com",
+  projectId: "torneo-fortnite-275be",
+  storageBucket: "torneo-fortnite-275be.firebasestorage.app",
+  messagingSenderId: "848370247823",
+  appId: "1:848370247823:web:50fb58ceedf2cee74868fa"
+};
+
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const form = document.getElementById('teamForm');
+      const teamList = document.getElementById('teamList');
+
+      async function loadTeams() {
+        teamList.innerHTML = "<h2>Equipos inscritos</h2>";
+        const querySnapshot = await getDocs(collection(db, "equipos"));
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const teamDiv = document.createElement("div");
+          teamDiv.classList.add("team");
+          teamDiv.innerHTML = `
+            <h3>$\{data.nombreEquipo}</h3>
+            <p>👤 $\{data.jugador1}$\{data.jugador2 ? " y " + data.jugador2 : ""}</p>
+            $\{data.comentario ? `<p>💬 $\{data.comentario}</p>` : ""}
+          `;
+          teamList.appendChild(teamDiv);
+        });
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nombreEquipo = document.getElementById("teamName").value.trim();
+        const jugador1 = document.getElementById("player1").value.trim();
+        const jugador2 = document.getElementById("player2").value.trim();
+        const comentario = document.getElementById("comment").value.trim();
+
+        if (!nombreEquipo || !jugador1) return;
+
+        await addDoc(collection(db, "equipos"), {
+          nombreEquipo,
+          jugador1,
+          jugador2,
+          comentario
+        });
+
+        form.reset();
+        loadTeams();
+      });
+
+      loadTeams();
+    });
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3a8a, #9333ea, #22c55e);
+      color: white;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: rgba(0,0,0,0.5);
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    form {
+      background-color: rgba(0,0,0,0.3);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    .team {
+      background-color: rgba(0,0,0,0.2);
+      border-left: 4px solid #22d3ee;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 5px;
+    }
+    .team h3 {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>1er Torneo de Fortnite (cero construcción)</header>
+  <main>
+    <form id="teamForm">
+      <input type="text" id="teamName" placeholder="Nombre del equipo" required>
+      <input type="text" id="player1" placeholder="Nombre del jugador 1" required>
+      <input type="text" id="player2" placeholder="Nombre del jugador 2 (opcional)">
+      <textarea id="comment" rows="2" placeholder="Comentario del equipo (opcional)"></textarea>
+      <button type="submit">Inscribir equipo</button>
+    </form>
+    <section id="teamList">
+      <h2>Equipos inscritos</h2>
+    </section>
+  </main>
+</body>
+</html>
